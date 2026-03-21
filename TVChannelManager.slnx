@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TVChannelManager.App/TVChannelManager.App.csproj" />
+  <Project Path="TVChannelManager.Library/TVChannelManager.Library.csproj" />
+</Solution>
