@@ -32,8 +32,8 @@
 
             string userPass = "";
 
-            if (!dic.TryGetValue(login, out userPass))
-                throw new ArgumentException($"Ошибка! В базе нет пользователя с именем \"{login}\"");
+            if (!dic.TryGetValue(login.Trim(), out userPass))
+                throw new ArgumentException($"Ошибка! В базе нет пользователя с именем \"{login.Trim()}\"");
 
             return userPass == password;
         }

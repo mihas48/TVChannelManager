@@ -28,6 +28,13 @@ namespace TVChannelManager.App
                 File.WriteAllText(usersFile, "");
             }
 
+            //Создание текстового файла для логирования ошибок
+            string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
+            if (!File.Exists(logFile))
+            {
+                File.WriteAllText(logFile, "");
+            }
+
             AuthService auth = new AuthService(usersFile);
 
             int choice;
@@ -63,6 +70,7 @@ namespace TVChannelManager.App
                         catch (ArgumentException ex)
                         {
                             Console.WriteLine(ex.Message);
+                            File.AppendAllText(logFile, $"[{DateTime.Now}] Исключение аргумента: {ex.Message}\n");
                         }
                         break;
                     default:
@@ -176,10 +184,12 @@ namespace TVChannelManager.App
             catch (ArgumentException ex)
             {
                 Console.WriteLine(ex.Message);
+                File.AppendAllText(logFile, $"[{DateTime.Now}] Исключение аргумента: {ex.Message}\n");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                File.AppendAllText(logFile, $"[{DateTime.Now}] Исключение: {ex.Message}\n");
             }
         }
     }
