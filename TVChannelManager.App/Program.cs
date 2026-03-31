@@ -103,7 +103,7 @@ namespace TVChannelManager.App
 
                 if (!File.Exists(currentUserDataFile))
                 {
-                    File.Create(currentUserDataFile);
+                    File.WriteAllText(currentUserDataFile, "");
                 }
 
                 else
@@ -121,7 +121,7 @@ namespace TVChannelManager.App
                         "(2) Добавление нового объекта\n" +
                         "(3) Удаление объекта из массива объектов пользователя\n" +
                         "(4) Редактирование выбранного объекта\n" +
-                        "(5) Выход");
+                        "(5) Выйти и сохранить данные");
 
                     int.TryParse(Console.ReadLine(), out choice);
                     switch (choice)
@@ -174,6 +174,7 @@ namespace TVChannelManager.App
                             manager.Update(channelNumber, updatedChannel);
                             break;
                         case 5:
+                            FileManager.SaveData(manager.GetData(), currentUserDataFile);
                             return;
                         default:
                             Console.WriteLine("Выберете правильный пункт меню");
