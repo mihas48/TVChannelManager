@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="TVChannelManager.App/TVChannelManager.App.csproj" />
   <Project Path="TVChannelManager.Library/TVChannelManager.Library.csproj" />
+  <Project Path="TVChannelManager.WPF/TVChannelManager.WPF.csproj" Id="b18bc2fc-066f-49ca-8210-6a94d61d1bef" />
 </Solution>

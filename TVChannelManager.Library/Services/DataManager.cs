@@ -1,4 +1,4 @@
-﻿using TVChannelManager.Library.Models;
+using TVChannelManager.Library.Models;
 
 namespace TVChannelManager.Library.Services
 {
@@ -8,14 +8,10 @@ namespace TVChannelManager.Library.Services
 
         public void Add(TVChannel channel)
         {
-            int lowRating = 0;
-            int highRating = 100;
-
-
             if (string.IsNullOrWhiteSpace(channel.Name))
                 throw new ArgumentException("Ошибка! Название канала не может быть пустым!");
-            if (channel.Rating < lowRating || channel.Rating > highRating)
-                throw new ArgumentException($"Ошибка! Рейтинг канала должен быть в диапазоне от {lowRating} до {highRating}!");
+            if (channel.Rating < 0 || channel.Rating > 100)
+                throw new ArgumentException("Ошибка! Рейтинг канала должен быть в диапазоне от 0 до 100!");
             if (channel.MedianViewersAge < 0 || channel.MedianViewersAge > 199)
                 throw new ArithmeticException("Ошибка! Средний возраст зрителей должен быть в диапазоне от 0 до 199!");
 
@@ -36,7 +32,6 @@ namespace TVChannelManager.Library.Services
         {
             if (_channels.Count == 0)
                 throw new Exception("Ошибка! Массив объектов пуст!");
-
             if (index < 1)
                 throw new ArgumentException("Ошибка! Номер не может быть меньше 1!");
             if (index > _channels.Count)
@@ -51,22 +46,17 @@ namespace TVChannelManager.Library.Services
                 throw new Exception("Ошибка! Массив объектов пуст!");
 
             int number = 1;
-            foreach (TVChannel channel in _channels)
+            foreach (var ch in _channels)
             {
-                Console.WriteLine($"{number}: Имя: \"{channel.Name}\"; Рейтинг: {channel.Rating}%; Средний возраст зрителей: {channel.MedianViewersAge}");
+                Console.WriteLine(
+                    $"{number}: \"{ch.Name}\" | Рейтинг: {ch.Rating}% | Ср. возраст: {ch.MedianViewersAge} | " +
+                    $"Основан: {ch.FoundingDate:dd.MM.yyyy} | Вещание с: {ch.BroadcastStartTime:hh\\:mm} | " +
+                    $"HD: {(ch.IsHD ? "Да" : "Нет")} | Жанр: {ch.Genre}");
                 number++;
             }
         }
 
-        public List<TVChannel> GetData()
-        {
-            List<TVChannel> ch = new List<TVChannel>(_channels);
-            return ch;
-        }
-
-        public void SetData(List<TVChannel> newChannels)
-        {
-            _channels = newChannels;
-        }
+        public List<TVChannel> GetData()       => new List<TVChannel>(_channels);
+        public void SetData(List<TVChannel> c) => _channels = c;
     }
 }
