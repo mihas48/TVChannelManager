@@ -18,20 +18,16 @@ namespace TVChannelManager.WPF.Views
             InitializeComponent();
 
             _dataFile = dataFile;
-            _logFile  = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
+            _logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
 
             UserLabel.Text = $"Пользователь: {userName}";
 
-            // Загрузка данных
             if (File.Exists(_dataFile))
             {
                 var fi = new FileInfo(_dataFile);
                 if (fi.Length > 0)
                 {
-                    try
-                    {
-                        _manager.SetData(FileManager.LoadData(_dataFile));
-                    }
+                    try { _manager.SetData(FileManager.LoadData(_dataFile)); }
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Ошибка загрузки данных: {ex.Message}",
@@ -42,7 +38,6 @@ namespace TVChannelManager.WPF.Views
             }
 
             Closing += (_, _) => SaveData();
-
             RefreshGrid();
         }
 
@@ -54,10 +49,7 @@ namespace TVChannelManager.WPF.Views
 
         private void SaveData()
         {
-            try
-            {
-                FileManager.SaveData(_manager.GetData(), _dataFile);
-            }
+            try { FileManager.SaveData(_manager.GetData(), _dataFile); }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка",
@@ -71,12 +63,7 @@ namespace TVChannelManager.WPF.Views
             var dialog = new AddEditWindow();
             if (dialog.ShowDialog() == true && dialog.Result != null)
             {
-                try
-                {
-                    _manager.Add(dialog.Result);
-                    SaveData();
-                    RefreshGrid();
-                }
+                try { _manager.Add(dialog.Result); SaveData(); RefreshGrid(); }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -94,16 +81,11 @@ namespace TVChannelManager.WPF.Views
                 return;
             }
 
-            int index = ChannelsGrid.SelectedIndex + 1; // 1-based
+            int index = ChannelsGrid.SelectedIndex + 1;
             var dialog = new AddEditWindow(selected);
             if (dialog.ShowDialog() == true && dialog.Result != null)
             {
-                try
-                {
-                    _manager.Update(index, dialog.Result);
-                    SaveData();
-                    RefreshGrid();
-                }
+                try { _manager.Update(index, dialog.Result); SaveData(); RefreshGrid(); }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -121,24 +103,25 @@ namespace TVChannelManager.WPF.Views
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                $"Удалить канал «{selected.Name}»?",
+            var confirm = MessageBox.Show($"Удалить канал «{selected.Name}»?",
                 "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
             if (confirm != MessageBoxResult.Yes) return;
 
             int index = ChannelsGrid.SelectedIndex + 1;
-            try
-            {
-                _manager.Remove(index);
-                SaveData();
-                RefreshGrid();
-            }
+            try { _manager.Remove(index); SaveData(); RefreshGrid(); }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 File.AppendAllText(_logFile, $"[{DateTime.Now}] {ex.Message}\n");
             }
+        }
+
+        // ─── Отчёты ── НОВОЕ в ЛР4 ───────────────────────────────────
+
+        private void ReportButton_Click(object sender, RoutedEventArgs e)
+        {
+            var reportWindow = new ReportWindow(_manager.GetData()) { Owner = this };
+            reportWindow.ShowDialog();
         }
     }
 }
