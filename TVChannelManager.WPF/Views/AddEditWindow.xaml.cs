@@ -44,9 +44,9 @@ namespace TVChannelManager.WPF.Views
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(_editingChannel.LogoImage))
+            if (!string.IsNullOrEmpty(_editingChannel.LogoBase64))
             {
-                _selectedImageBase64 = _editingChannel.LogoImage;
+                _selectedImageBase64 = _editingChannel.LogoBase64;
                 DisplayImageFromBase64(_selectedImageBase64);
                 ImagePathLabel.Text = "Логотип загружен";
             }
@@ -100,7 +100,7 @@ namespace TVChannelManager.WPF.Views
                     BroadcastStartTime = TimeSpan.Parse(BroadcastTimeBox.Text),
                     IsHD = IsHDCheckBox.IsChecked ?? false,
                     Genre = (GenreComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "",
-                    LogoImage = _selectedImageBase64
+                    LogoBase64 = _selectedImageBase64
                 };
 
                 if (_editingChannel != null)

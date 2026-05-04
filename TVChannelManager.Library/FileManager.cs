@@ -1,23 +1,30 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using TVChannelManager.Library.Models;
 
 namespace TVChannelManager.Library
 {
     public static class FileManager
     {
-        public static void SaveData(List<TVChannel> channels, string path)
+        private static readonly JsonSerializerOptions Options = new()
         {
-            string json = JsonConvert.SerializeObject(channels, Formatting.Indented);
-            File.WriteAllText(path, json);
-        }
+            WriteIndented = true,
+            PropertyNameCaseInsensitive = true
+        };
 
         public static List<TVChannel> LoadData(string path)
         {
+            if (!File.Exists(path))
+                return new List<TVChannel>();
             string json = File.ReadAllText(path);
-            
-            List<TVChannel> channels = new List<TVChannel>(JsonConvert.DeserializeObject<List<TVChannel>>(json));
+            return JsonSerializer.Deserialize<List<TVChannel>>(json, Options) ?? new List<TVChannel>();
+        }
 
-            return channels;
+        public static void SaveData(List<TVChannel> data, string path)
+        {
+            string json = JsonSerializer.Serialize(data, Options);
+            File.WriteAllText(path, json);
         }
     }
 }

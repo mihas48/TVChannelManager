@@ -12,6 +12,6 @@ namespace TVChannelManager.Library.Models
         public TimeSpan BroadcastStartTime { get; set; }
         public bool IsHD { get; set; }
         public string Genre { get; set; }
-        public string LogoImage { get; set; } // base64 строка логотипа
+        public string LogoBase64 { get; set; } // base64 строка логотипа
     }
 }

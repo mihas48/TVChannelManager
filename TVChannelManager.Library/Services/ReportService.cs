@@ -2,133 +2,104 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using TVChannelManager.Library.Models;
 
 namespace TVChannelManager.Library.Services
 {
-    /// <summary>
-    /// Сервис генерации трёх видов отчётов о телеканалах.
-    /// </summary>
     public static class ReportService
     {
-        /// <summary>
-        /// Формирует подробный отчёт об одном телеканале и сохраняет его в файл.
-        /// </summary>
-        /// <param name="channel">Объект телеканала.</param>
-        /// <param name="outputPath">Путь к выходному файлу.</param>
+        private static string HtmlPage(string title, string body) =>
+            $@"<!DOCTYPE html>
+<html lang='ru'>
+<head><meta charset='utf-8'><title>{title}</title>
+<style>
+body {{ font-family: 'Segoe UI', sans-serif; margin: 2em; color: #1a237e; }}
+h1 {{ color: #0d47a1; }}
+table {{ border-collapse: collapse; width: 100%; margin-top: 1em; }}
+th, td {{ border: 1px solid #90caf9; padding: 0.5em; text-align: left; }}
+th {{ background-color: #1565c0; color: white; }}
+tr:nth-child(even) {{ background-color: #e3f2fd; }}
+img.logo {{ height: 40px; }}
+</style></head><body>
+<h1>{title}</h1>
+{body}
+</body></html>";
+
+        // Отчёт по одному каналу
         public static void GenerateSingleReport(TVChannel channel, string outputPath)
         {
             if (channel == null)
-                throw new ArgumentNullException(nameof(channel), "Телеканал не может быть null.");
+                throw new ArgumentNullException(nameof(channel));
 
-            var lines = new List<string>
-            {
-                "═══════════════════════════════════════════════════════",
-                "            ОТЧЁТ О ТЕЛЕКАНАЛЕ",
-                $"            Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm:ss}",
-                "═══════════════════════════════════════════════════════",
-                "",
-                $"  Название:              {channel.Name}",
-                $"  Рейтинг:               {channel.Rating}%",
-                $"  Средний возраст:       {channel.MedianViewersAge} лет",
-                $"  Дата основания:        {channel.FoundingDate:dd.MM.yyyy}",
-                $"  Время начала вещания:  {channel.BroadcastStartTime:hh\\:mm}",
-                $"  HD-вещание:            {(channel.IsHD ? "Да" : "Нет")}",
-                $"  Жанр:                  {channel.Genre}",
-                $"  Логотип:               {(string.IsNullOrWhiteSpace(channel.LogoImage) ? "Отсутствует" : "Загружен")}",
-                "",
-                "═══════════════════════════════════════════════════════"
-            };
+            string logoCell = string.IsNullOrWhiteSpace(channel.LogoBase64)
+                ? "—"
+                : $"<img class='logo' src='data:image/png;base64,{channel.LogoBase64}' />";
 
-            File.WriteAllLines(outputPath, lines, System.Text.Encoding.UTF8);
+            var body = new StringBuilder();
+            body.AppendLine("<table>");
+            body.AppendLine($"<tr><td><b>Название</b></td><td>{channel.Name}</td></tr>");
+            body.AppendLine($"<tr><td><b>Рейтинг</b></td><td>{channel.Rating}%</td></tr>");
+            body.AppendLine($"<tr><td><b>Средний возраст</b></td><td>{channel.MedianViewersAge}</td></tr>");
+            body.AppendLine($"<tr><td><b>Дата основания</b></td><td>{channel.FoundingDate:dd.MM.yyyy}</td></tr>");
+            body.AppendLine($"<tr><td><b>Начало вещания</b></td><td>{channel.BroadcastStartTime:hh\\:mm}</td></tr>");
+            body.AppendLine($"<tr><td><b>HD</b></td><td>{(channel.IsHD ? "Да" : "Нет")}</td></tr>");
+            body.AppendLine($"<tr><td><b>Жанр</b></td><td>{channel.Genre}</td></tr>");
+            body.AppendLine($"<tr><td><b>Логотип</b></td><td>{logoCell}</td></tr>");
+            body.AppendLine("</table>");
+
+            File.WriteAllText(outputPath, HtmlPage($"Отчёт: {channel.Name}", body.ToString()), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Формирует отчёт о нескольких выбранных телеканалах.
-        /// </summary>
-        /// <param name="channels">Список выбранных каналов.</param>
-        /// <param name="outputPath">Путь к выходному файлу.</param>
+        // Отчёт по нескольким каналам
         public static void GenerateMultipleReport(List<TVChannel> channels, string outputPath)
         {
             if (channels == null || channels.Count == 0)
-                throw new ArgumentException("Список телеканалов не может быть пустым.");
+                throw new ArgumentException("Список каналов пуст.");
 
-            var lines = new List<string>
+            var body = new StringBuilder();
+            body.AppendLine("<table>");
+            body.AppendLine("<tr><th>Название</th><th>Рейтинг</th><th>Ср. возраст</th><th>Дата осн.</th><th>HD</th><th>Жанр</th></tr>");
+            foreach (var ch in channels)
             {
-                "═══════════════════════════════════════════════════════",
-                "       ОТЧЁТ ПО ВЫБРАННЫМ ТЕЛЕКАНАЛАМ",
-                $"       Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm:ss}",
-                $"       Количество каналов в отчёте: {channels.Count}",
-                "═══════════════════════════════════════════════════════",
-                ""
-            };
-
-            for (int i = 0; i < channels.Count; i++)
-            {
-                var ch = channels[i];
-                lines.Add($"  [{i + 1}] {ch.Name}");
-                lines.Add($"      Рейтинг:        {ch.Rating}%");
-                lines.Add($"      Ср. возраст:    {ch.MedianViewersAge} лет");
-                lines.Add($"      Дата осн.:      {ch.FoundingDate:dd.MM.yyyy}");
-                lines.Add($"      Вещание с:      {ch.BroadcastStartTime:hh\\:mm}");
-                lines.Add($"      HD:             {(ch.IsHD ? "Да" : "Нет")}");
-                lines.Add($"      Жанр:           {ch.Genre}");
-                lines.Add("      ───────────────────────────────────────────");
-                lines.Add("");
+                body.AppendLine($"<tr><td>{ch.Name}</td><td>{ch.Rating}%</td><td>{ch.MedianViewersAge}</td>"
+                               + $"<td>{ch.FoundingDate:dd.MM.yyyy}</td><td>{(ch.IsHD ? "Да" : "Нет")}</td><td>{ch.Genre}</td></tr>");
             }
-
-            lines.Add("═══════════════════════════════════════════════════════");
-
-            File.WriteAllLines(outputPath, lines, System.Text.Encoding.UTF8);
+            body.AppendLine("</table>");
+            File.WriteAllText(outputPath, HtmlPage($"Отчёт по {channels.Count} каналам", body.ToString()), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Формирует отчёт с интегральными характеристиками коллекции каналов.
-        /// </summary>
-        /// <param name="channels">Полный список каналов пользователя.</param>
-        /// <param name="outputPath">Путь к выходному файлу.</param>
+        // Интегральный отчёт
         public static void GenerateIntegralReport(List<TVChannel> channels, string outputPath)
         {
             if (channels == null || channels.Count == 0)
-                throw new ArgumentException("Нет данных для формирования интегрального отчёта.");
+                throw new ArgumentException("Нет данных.");
 
             double avgRating = channels.Average(c => c.Rating);
             double avgAge = channels.Average(c => c.MedianViewersAge);
             int hdCount = channels.Count(c => c.IsHD);
-            double hdPercent = (double)hdCount / channels.Count * 100;
-            TVChannel topRated = channels.OrderByDescending(c => c.Rating).First();
-            TVChannel oldest = channels.OrderBy(c => c.FoundingDate).First();
+            double hdPerc = (double)hdCount / channels.Count * 100.0;
+            var top = channels.OrderByDescending(c => c.Rating).First();
+            var old = channels.OrderBy(c => c.FoundingDate).First();
+            var genres = channels.GroupBy(c => c.Genre)
+                                 .Select(g => $"<tr><td>{g.Key}</td><td>{g.Count()}</td></tr>");
 
-            var genreGroups = channels
-                .GroupBy(c => c.Genre)
-                .OrderByDescending(g => g.Count())
-                .Select(g => $"      {g.Key,-18}: {g.Count()} ({(double)g.Count() / channels.Count * 100:F1}%)");
+            var body = new StringBuilder();
+            body.AppendLine("<h2>Общая статистика</h2>");
+            body.AppendLine("<table>");
+            body.AppendLine($"<tr><td>Всего каналов</td><td>{channels.Count}</td></tr>");
+            body.AppendLine($"<tr><td>Средний рейтинг</td><td>{avgRating:F2}%</td></tr>");
+            body.AppendLine($"<tr><td>Средний возраст аудитории</td><td>{avgAge:F1}</td></tr>");
+            body.AppendLine($"<tr><td>Доля HD</td><td>{hdPerc:F1}%</td></tr>");
+            body.AppendLine($"<tr><td>Лидер по рейтингу</td><td>{top.Name} ({top.Rating}%)</td></tr>");
+            body.AppendLine($"<tr><td>Старейший канал</td><td>{old.Name} (осн. {old.FoundingDate:dd.MM.yyyy})</td></tr>");
+            body.AppendLine("</table>");
+            body.AppendLine("<h2>Распределение по жанрам</h2>");
+            body.AppendLine("<table><tr><th>Жанр</th><th>Количество</th></tr>");
+            body.Append(string.Join("", genres));
+            body.AppendLine("</table>");
 
-            var lines = new List<string>
-            {
-                "═══════════════════════════════════════════════════════",
-                "         ИНТЕГРАЛЬНЫЙ ОТЧЁТ ПО ТЕЛЕКАНАЛАМ",
-                $"         Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm:ss}",
-                "═══════════════════════════════════════════════════════",
-                "",
-                "  ОБЩАЯ СТАТИСТИКА",
-                $"  Всего каналов:         {channels.Count}",
-                $"  Средний рейтинг:       {avgRating:F2}%",
-                $"  Средний возраст аудит: {avgAge:F1} лет",
-                $"  Каналов с HD:          {hdCount} ({hdPercent:F1}%)",
-                "",
-                "  ЛИДЕРЫ",
-                $"  Наивысший рейтинг:     {topRated.Name} ({topRated.Rating}%)",
-                $"  Старейший канал:       {oldest.Name} (основан {oldest.FoundingDate:dd.MM.yyyy})",
-                "",
-                "  РАСПРЕДЕЛЕНИЕ ПО ЖАНРАМ",
-            };
-
-            lines.AddRange(genreGroups);
-            lines.Add("");
-            lines.Add("═══════════════════════════════════════════════════════");
-
-            File.WriteAllLines(outputPath, lines, System.Text.Encoding.UTF8);
+            File.WriteAllText(outputPath, HtmlPage("Интегральный отчёт", body.ToString()), Encoding.UTF8);
         }
     }
 }

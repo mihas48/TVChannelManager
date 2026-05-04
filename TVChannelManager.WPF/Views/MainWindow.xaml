@@ -9,7 +9,7 @@
         Background="#EEF4FF">
 
     <Window.Resources>
-        <local:Base64ToImageConverter x:Key="Base64ToImageConverter"/>
+        <local:Base64ToImageConverter x:Key="Base64Converter"/>
 
         <!-- остальные стили (BlueBtn, RedBtn и т.д.) – оставь как есть -->
 
@@ -123,10 +123,8 @@
                     <DataGridTemplateColumn Header="Логотип" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Image Source="{Binding LogoImage, Converter={StaticResource Base64ToImageConverter}}"
-                                       Width="34" Height="34"
-                                       Stretch="Uniform"
-                                       HorizontalAlignment="Center"/>
+                                <Image Source="{Binding LogoBase64, Converter={StaticResource Base64Converter}}"
+                   Width="34" Height="34" Stretch="Uniform" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

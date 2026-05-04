@@ -22,9 +22,6 @@ namespace TVChannelManager.WPF.Views
             _logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
         }
 
-        // ─────────────────────────────────────────────────────────────
-        //  Навигация между панелями
-        // ─────────────────────────────────────────────────────────────
 
         private void ShowPanel(UIElement panel)
         {
@@ -39,10 +36,6 @@ namespace TVChannelManager.WPF.Views
         {
             ShowPanel(PanelButtons);
         }
-
-        // ─────────────────────────────────────────────────────────────
-        //  Отчёт 1 — один канал
-        // ─────────────────────────────────────────────────────────────
 
         private void BtnSingleReport_Click(object sender, RoutedEventArgs e)
         {
@@ -69,7 +62,7 @@ namespace TVChannelManager.WPF.Views
                 return;
             }
 
-            string? path = ChooseSavePath($"Отчёт_{selected.Name}.txt");
+            string? path = ChooseSavePath($"Отчёт_{selected.Name}.html");
             if (path == null) return;
 
             try
@@ -86,10 +79,6 @@ namespace TVChannelManager.WPF.Views
                 File.AppendAllText(_logFile, $"[{DateTime.Now}] ReportSingle: {ex.Message}\n");
             }
         }
-
-        // ─────────────────────────────────────────────────────────────
-        //  Отчёт 2 — несколько каналов
-        // ─────────────────────────────────────────────────────────────
 
         private void BtnMultipleReport_Click(object sender, RoutedEventArgs e)
         {
@@ -117,7 +106,7 @@ namespace TVChannelManager.WPF.Views
                 return;
             }
 
-            string? path = ChooseSavePath("Отчёт_по_выбранным.txt");
+            string? path = ChooseSavePath("Отчёт_по_выбранным.html");
             if (path == null) return;
 
             try
@@ -135,10 +124,6 @@ namespace TVChannelManager.WPF.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────────
-        //  Отчёт 3 — интегральный
-        // ─────────────────────────────────────────────────────────────
-
         private void BtnIntegralReport_Click(object sender, RoutedEventArgs e)
         {
             if (_channels.Count == 0)
@@ -148,7 +133,7 @@ namespace TVChannelManager.WPF.Views
                 return;
             }
 
-            string? path = ChooseSavePath("Интегральный_отчёт.txt");
+            string? path = ChooseSavePath("Интегральный_отчёт.html");
             if (path == null) return;
 
             try
@@ -166,20 +151,15 @@ namespace TVChannelManager.WPF.Views
             }
         }
 
-        // ─────────────────────────────────────────────────────────────
-        //  Вспомогательный метод: диалог сохранения файла
-        // ─────────────────────────────────────────────────────────────
-
         private static string? ChooseSavePath(string defaultName)
         {
-            var dlg = new SaveFileDialog
+            var dlg = new Microsoft.Win32.SaveFileDialog
             {
                 Title = "Сохранить отчёт",
                 FileName = defaultName,
-                DefaultExt = ".txt",
-                Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*"
+                DefaultExt = ".html",
+                Filter = "HTML-файлы (*.html)|*.html|Все файлы (*.*)|*.*"
             };
-
             return dlg.ShowDialog() == true ? dlg.FileName : null;
         }
     }
