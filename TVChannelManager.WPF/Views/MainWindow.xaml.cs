@@ -61,9 +61,9 @@ namespace TVChannelManager.WPF.Views
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new AddEditWindow();
-            if (dialog.ShowDialog() == true && dialog.Result != null)
+            if (dialog.ShowDialog() == true && dialog.Tag is TVChannel newChannel)
             {
-                try { _manager.Add(dialog.Result); SaveData(); RefreshGrid(); }
+                try { _manager.Add(newChannel); SaveData(); RefreshGrid(); }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -83,9 +83,9 @@ namespace TVChannelManager.WPF.Views
 
             int index = ChannelsGrid.SelectedIndex + 1;
             var dialog = new AddEditWindow(selected);
-            if (dialog.ShowDialog() == true && dialog.Result != null)
+            if (dialog.ShowDialog() == true && dialog.Tag is TVChannel updatedChannel)
             {
-                try { _manager.Update(index, dialog.Result); SaveData(); RefreshGrid(); }
+                try { _manager.Update(index, updatedChannel); SaveData(); RefreshGrid(); }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -115,8 +115,6 @@ namespace TVChannelManager.WPF.Views
                 File.AppendAllText(_logFile, $"[{DateTime.Now}] {ex.Message}\n");
             }
         }
-
-        // ─── Отчёты ── НОВОЕ в ЛР4 ───────────────────────────────────
 
         private void ReportButton_Click(object sender, RoutedEventArgs e)
         {

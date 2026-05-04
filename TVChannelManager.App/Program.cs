@@ -135,11 +135,19 @@ namespace TVChannelManager.App
 
                             Console.WriteLine("Введите рейтинг телеканала");
                             double channelRating = 0.0;
+
                             double.TryParse(Console.ReadLine(), out channelRating);
+
+                            if (channelRating < 0)
+                                throw new Exception("Ошибка! Рейтинг телеканала не может быть меньше 0!");
 
                             Console.WriteLine("Введите средний возраст зрителей");
                             double channelMedianViewersAge = 0.0;
+
                             double.TryParse(Console.ReadLine(), out channelMedianViewersAge);
+
+                            if (channelMedianViewersAge < 0)
+                                throw new Exception("Ошибка! Средний возраст зрителей не может быть меньше 0!");
 
                             TVChannel newChannel = new TVChannel()
                             { Name = channelName, Rating = channelRating, MedianViewersAge = channelMedianViewersAge  }; 

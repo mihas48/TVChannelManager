@@ -1,4 +1,8 @@
-﻿using TVChannelManager.Library.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TVChannelManager.Library.Models;
 
 namespace TVChannelManager.Library.Services
 {
@@ -7,7 +11,6 @@ namespace TVChannelManager.Library.Services
     /// </summary>
     public static class ReportService
     {
-
         /// <summary>
         /// Формирует подробный отчёт об одном телеканале и сохраняет его в файл.
         /// </summary>
@@ -32,17 +35,13 @@ namespace TVChannelManager.Library.Services
                 $"  Время начала вещания:  {channel.BroadcastStartTime:hh\\:mm}",
                 $"  HD-вещание:            {(channel.IsHD ? "Да" : "Нет")}",
                 $"  Жанр:                  {channel.Genre}",
-                $"  Логотип:               {(string.IsNullOrWhiteSpace(channel.LogoBase64) ? "Отсутствует" : "Загружен")}",
+                $"  Логотип:               {(string.IsNullOrWhiteSpace(channel.LogoImage) ? "Отсутствует" : "Загружен")}",
                 "",
                 "═══════════════════════════════════════════════════════"
             };
 
             File.WriteAllLines(outputPath, lines, System.Text.Encoding.UTF8);
         }
-
-        // ─────────────────────────────────────────────────────────────
-        //  Отчёт 2: О нескольких выбранных телеканалах
-        // ─────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Формирует отчёт о нескольких выбранных телеканалах.
@@ -83,10 +82,6 @@ namespace TVChannelManager.Library.Services
             File.WriteAllLines(outputPath, lines, System.Text.Encoding.UTF8);
         }
 
-        // ─────────────────────────────────────────────────────────────
-        //  Отчёт 3: Интегральная характеристика всех каналов
-        // ─────────────────────────────────────────────────────────────
-
         /// <summary>
         /// Формирует отчёт с интегральными характеристиками коллекции каналов.
         /// </summary>
@@ -104,7 +99,6 @@ namespace TVChannelManager.Library.Services
             TVChannel topRated = channels.OrderByDescending(c => c.Rating).First();
             TVChannel oldest = channels.OrderBy(c => c.FoundingDate).First();
 
-            // Распределение по жанрам
             var genreGroups = channels
                 .GroupBy(c => c.Genre)
                 .OrderByDescending(g => g.Count())

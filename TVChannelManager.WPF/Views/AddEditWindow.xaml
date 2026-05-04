@@ -1,7 +1,6 @@
 <Window x:Class="TVChannelManager.WPF.Views.AddEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:TVChannelManager.Library.Models;assembly=TVChannelManager.Library"
         Title="Добавить / редактировать канал"
         Height="620" Width="500"
         WindowStartupLocation="CenterOwner"
@@ -87,19 +86,15 @@
                            Foreground="#1565C0"
                            Margin="0,0,0,20"/>
 
-                <!-- Название -->
                 <TextBlock Text="Название канала" Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="NameBox" Style="{StaticResource InputBox}" Margin="0,0,0,14"/>
 
-                <!-- Рейтинг -->
                 <TextBlock Text="Рейтинг (0 – 100)" Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="RatingBox" Style="{StaticResource InputBox}" Margin="0,0,0,14"/>
 
-                <!-- Средний возраст -->
                 <TextBlock Text="Средний возраст зрителей" Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="AgeBox" Style="{StaticResource InputBox}" Margin="0,0,0,14"/>
 
-                <!-- ДАТА — DatePicker -->
                 <TextBlock Text="Дата основания" Style="{StaticResource FieldLabel}"/>
                 <DatePicker x:Name="FoundingDatePicker"
                             Height="34" FontSize="13"
@@ -107,20 +102,17 @@
                             Background="#F5F9FF"
                             Margin="0,0,0,14"/>
 
-                <!-- ВРЕМЯ — TextBox (ЧЧ:ММ) -->
                 <TextBlock Text="Время начала вещания (ЧЧ:ММ)" Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="BroadcastTimeBox"
                          Style="{StaticResource InputBox}"
                          Margin="0,0,0,14"/>
 
-                <!-- ПЕРЕКЛЮЧАТЕЛЬ — CheckBox -->
                 <CheckBox x:Name="IsHDCheckBox"
                           Content="HD-вещание"
                           FontSize="13" Foreground="#1565C0"
                           FontWeight="SemiBold" Cursor="Hand"
                           Margin="0,0,0,14"/>
 
-                <!-- ПЕРЕЧИСЛЕНИЕ — ComboBox -->
                 <TextBlock Text="Жанр канала" Style="{StaticResource FieldLabel}"/>
                 <ComboBox x:Name="GenreComboBox"
                           Height="34" FontSize="13"
@@ -135,7 +127,6 @@
                     <ComboBoxItem Content="Музыкальный"     Tag="Музыкальный"/>
                 </ComboBox>
 
-                <!-- ИЗОБРАЖЕНИЕ — кнопка + превью -->
                 <TextBlock Text="Логотип канала" Style="{StaticResource FieldLabel}"/>
                 <Grid Margin="0,0,0,6">
                     <Grid.ColumnDefinitions>
@@ -164,7 +155,6 @@
                            FontSize="11" Foreground="#90A4AE"
                            Margin="0,0,0,20"/>
 
-                <!-- Кнопки подтверждения -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

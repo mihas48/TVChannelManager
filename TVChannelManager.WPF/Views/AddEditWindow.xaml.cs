@@ -1,7 +1,9 @@
+// TVChannelManager.WPF/Views/AddEditWindow.xaml.cs (исправлен)
 using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using TVChannelManager.Library.Models;
 
@@ -9,152 +11,111 @@ namespace TVChannelManager.WPF.Views
 {
     public partial class AddEditWindow : Window
     {
-        // Результат диалога — канал для сохранения
-        public TVChannel? Result { get; private set; }
+        private TVChannel _editingChannel;
+        private string _selectedImageBase64;
 
-        private string? _logoBase64 = null;
-
-        // ─── Конструктор: режим добавления ───────────────────────────────────
-        public AddEditWindow()
+        public AddEditWindow(TVChannel channel = null)
         {
             InitializeComponent();
-            WindowTitleLabel.Text   = "Новый телеканал";
-            FoundingDatePicker.SelectedDate = DateTime.Today;
-            BroadcastTimeBox.Text   = "06:00";
-            IsHDCheckBox.IsChecked  = false;
-            GenreComboBox.SelectedIndex = 1; // Развлекательный
+            if (channel != null)
+            {
+                _editingChannel = channel;
+                WindowTitleLabel.Text = "Редактировать канал";
+                LoadChannelData();
+            }
         }
 
-        // ─── Конструктор: режим редактирования ───────────────────────────────
-        public AddEditWindow(TVChannel existing) : this()
+        private void LoadChannelData()
         {
-            WindowTitleLabel.Text = "Редактировать канал";
-
-            NameBox.Text   = existing.Name;
-            RatingBox.Text = existing.Rating.ToString();
-            AgeBox.Text    = existing.MedianViewersAge.ToString();
-
-            FoundingDatePicker.SelectedDate = existing.FoundingDate;
-            BroadcastTimeBox.Text           = existing.BroadcastStartTime.ToString(@"hh\:mm");
-            IsHDCheckBox.IsChecked          = existing.IsHD;
-
-            // Жанр
-            foreach (var item in GenreComboBox.Items)
+            NameBox.Text = _editingChannel.Name;
+            RatingBox.Text = _editingChannel.Rating.ToString();
+            AgeBox.Text = _editingChannel.MedianViewersAge.ToString();
+            FoundingDatePicker.SelectedDate = _editingChannel.FoundingDate;
+            BroadcastTimeBox.Text = _editingChannel.BroadcastStartTime.ToString(@"hh\:mm");
+            IsHDCheckBox.IsChecked = _editingChannel.IsHD;
+            if (!string.IsNullOrEmpty(_editingChannel.Genre))
             {
-                if (item is System.Windows.Controls.ComboBoxItem cbi &&
-                    cbi.Tag?.ToString() == existing.Genre.ToString())
+                foreach (ComboBoxItem item in GenreComboBox.Items)
                 {
-                    GenreComboBox.SelectedItem = cbi;
-                    break;
+                    if (item.Tag?.ToString() == _editingChannel.Genre)
+                    {
+                        GenreComboBox.SelectedItem = item;
+                        break;
+                    }
                 }
             }
-
-            // Изображение
-            if (!string.IsNullOrWhiteSpace(existing.LogoBase64))
+            if (!string.IsNullOrEmpty(_editingChannel.LogoImage))
             {
-                _logoBase64 = existing.LogoBase64;
-                ImagePathLabel.Text = "Изображение загружено";
+                _selectedImageBase64 = _editingChannel.LogoImage;
+                DisplayImageFromBase64(_selectedImageBase64);
+                ImagePathLabel.Text = "Логотип загружен";
             }
         }
 
-        // ─── Выбор изображения ───────────────────────────────────────────────
         private void ChooseImageButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog
+            var dialog = new OpenFileDialog();
+            dialog.Filter = "Image files (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp";
+            if (dialog.ShowDialog() == true)
             {
-                Title  = "Выберите изображение",
-                Filter = "Изображения (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp"
-            };
+                byte[] imageBytes = File.ReadAllBytes(dialog.FileName);
+                _selectedImageBase64 = Convert.ToBase64String(imageBytes);
+                DisplayImageFromBase64(_selectedImageBase64);
+                ImagePathLabel.Text = System.IO.Path.GetFileName(dialog.FileName);
+            }
+        }
 
-            if (dialog.ShowDialog() != true) return;
-
+        private void DisplayImageFromBase64(string base64)
+        {
             try
             {
-                byte[] bytes = File.ReadAllBytes(dialog.FileName);
-                _logoBase64 = Convert.ToBase64String(bytes);
-
-                // Превью
-                var img = new BitmapImage();
-                img.BeginInit();
-                img.UriSource = new Uri(dialog.FileName);
-                img.CacheOption = BitmapCacheOption.OnLoad;
-                img.EndInit();
-
-                LogoPreview.Source  = img;
-                ImagePathLabel.Text = Path.GetFileName(dialog.FileName);
+                byte[] bytes = Convert.FromBase64String(base64);
+                using var ms = new MemoryStream(bytes);
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.StreamSource = ms;
+                image.EndInit();
+                LogoPreview.Source = image;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка загрузки изображения: {ex.Message}",
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            catch { LogoPreview.Source = null; }
         }
 
-        // ─── Сохранение ──────────────────────────────────────────────────────
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Валидация обязательных полей
-            if (string.IsNullOrWhiteSpace(NameBox.Text))
-            {
-                MessageBox.Show("Введите название канала.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!double.TryParse(RatingBox.Text, out double rating) || rating < 0 || rating > 100)
-            {
-                MessageBox.Show("Рейтинг должен быть числом от 0 до 100.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!double.TryParse(AgeBox.Text, out double age) || age < 0 || age > 199)
-            {
-                MessageBox.Show("Средний возраст должен быть числом от 0 до 199.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (FoundingDatePicker.SelectedDate == null)
-            {
-                MessageBox.Show("Укажите дату основания канала.", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (!TimeSpan.TryParse(BroadcastTimeBox.Text, out TimeSpan broadcastTime))
-            {
-                MessageBox.Show("Время начала вещания должно быть в формате ЧЧ:ММ (например, 06:00).", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Жанр
-            ChannelGenre genre = ChannelGenre.Развлекательный;
-            if (GenreComboBox.SelectedItem is System.Windows.Controls.ComboBoxItem selectedItem)
-            {
-                Enum.TryParse(selectedItem.Tag?.ToString(), out genre);
-            }
-
-            Result = new TVChannel
-            {
-                Name               = NameBox.Text.Trim(),
-                Rating             = rating,
-                MedianViewersAge   = age,
-                FoundingDate       = FoundingDatePicker.SelectedDate.Value,
-                BroadcastStartTime = broadcastTime,
-                IsHD               = IsHDCheckBox.IsChecked == true,
-                Genre              = genre,
-                LogoBase64         = _logoBase64
-            };
-
-            DialogResult = true;
-        }
-
-        // ─── Отмена ──────────────────────────────────────────────────────────
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+            Close();
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var channel = new TVChannel
+                {
+                    Name = NameBox.Text.Trim(),
+                    Rating = double.Parse(RatingBox.Text),
+                    MedianViewersAge = int.Parse(AgeBox.Text),
+                    FoundingDate = FoundingDatePicker.SelectedDate ?? DateTime.Now,
+                    BroadcastStartTime = TimeSpan.Parse(BroadcastTimeBox.Text),
+                    IsHD = IsHDCheckBox.IsChecked ?? false,
+                    Genre = (GenreComboBox.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "",
+                    LogoImage = _selectedImageBase64
+                };
+
+                if (_editingChannel != null)
+                {
+                    channel.GetType().GetProperty("Id")?.SetValue(channel, _editingChannel.GetType().GetProperty("Id")?.GetValue(_editingChannel));
+                }
+
+                Tag = channel;
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
