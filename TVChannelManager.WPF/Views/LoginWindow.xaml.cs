@@ -17,7 +17,8 @@ namespace TVChannelManager.WPF.Views
         {
             InitializeComponent();
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string baseDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TVChannelManager");
+            Directory.CreateDirectory(baseDir);
 
             string userDir = Path.Combine(baseDir, "Users");
             Directory.CreateDirectory(userDir);

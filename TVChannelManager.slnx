@@ -1,5 +1,12 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
   <Project Path="TVChannelManager.App/TVChannelManager.App.csproj" />
   <Project Path="TVChannelManager.Library/TVChannelManager.Library.csproj" />
+  <Project Path="TVChannelManager.Tests/TVChannelManager.Tests.csproj" Id="4d64f8b6-879f-4367-a151-dd9478c5f860" />
   <Project Path="TVChannelManager.WPF/TVChannelManager.WPF.csproj" Id="b18bc2fc-066f-49ca-8210-6a94d61d1bef" />
 </Solution>

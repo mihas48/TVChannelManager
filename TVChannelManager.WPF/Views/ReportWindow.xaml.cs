@@ -19,7 +19,7 @@ namespace TVChannelManager.WPF.Views
             InitializeComponent();
 
             _channels = channels ?? new List<TVChannel>();
-            _logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
+            _logFile = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TVChannelManager"), "error_log.txt");
         }
 
 

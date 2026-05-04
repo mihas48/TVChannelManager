@@ -9,7 +9,7 @@ namespace TVChannelManager.App
         static void Main()
         {
             //Создание директории для хранения данных о пользователях
-            string userDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Users");
+            string userDir = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TVChannelManager"), "Users");
             if (!Directory.Exists(userDir))
             {
                 Directory.CreateDirectory(userDir);
@@ -29,7 +29,7 @@ namespace TVChannelManager.App
             }
 
             //Создание текстового файла для логирования ошибок
-            string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
+            string logFile = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TVChannelManager"), "error_log.txt");
             if (!File.Exists(logFile))
             {
                 File.WriteAllText(logFile, "");
@@ -150,7 +150,7 @@ namespace TVChannelManager.App
                                 throw new Exception("Ошибка! Средний возраст зрителей не может быть меньше 0!");
 
                             TVChannel newChannel = new TVChannel()
-                            { Name = channelName, Rating = channelRating, MedianViewersAge = channelMedianViewersAge  }; 
+                            { Name = channelName, Rating = channelRating, MedianViewersAge = (int)channelMedianViewersAge  }; 
 
                             manager.Add(newChannel);
                             break;
@@ -177,7 +177,7 @@ namespace TVChannelManager.App
                             double.TryParse(Console.ReadLine(), out channelMedianViewersAge);
 
                             TVChannel updatedChannel = new TVChannel()
-                            { Name = channelName, Rating = channelRating, MedianViewersAge = channelMedianViewersAge };
+                            { Name = channelName, Rating = channelRating, MedianViewersAge = (int)channelMedianViewersAge };
 
                             manager.Update(channelNumber, updatedChannel);
                             break;

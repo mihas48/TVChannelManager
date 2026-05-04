@@ -18,7 +18,7 @@ namespace TVChannelManager.WPF.Views
             InitializeComponent();
 
             _dataFile = dataFile;
-            _logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
+            _logFile = Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TVChannelManager"), "error_log.txt");
 
             UserLabel.Text = $"Пользователь: {userName}";
 
